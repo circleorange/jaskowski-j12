@@ -2,8 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run Solution (JAR)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "java -Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux -jar build/jar/roadef.jar -conf conf/hc_lnshc.conf -p data/A/model_a1_2.txt -i data/A/assignment_a1_2.txt -o new_assignment_a1_2.txt -t 10",
+            "env": {
+                "LD_LIBRARY_PATH": "/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux:${env:LD_LIBRARY_PATH}"
+            },
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build JAR"
+        },
+        {
             "type": "java",
-            "name": "Run Solution",
+            "name": "Run Solution (Classes)",
             "request": "launch",
             "mainClass": "put.roadef.Main",
             "args": [
@@ -11,7 +22,7 @@
                 "-p", "data/A/model_a1_2.txt",
                 "-i", "data/A/assignment_a1_2.txt",
                 "-o", "new_assignment_a1_2.txt",
-                "-t", "300"
+                "-t", "10"
             ],
             "vmArgs": [
                 "-Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux"
@@ -20,11 +31,23 @@
                 "LD_LIBRARY_PATH": "/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux:${env:LD_LIBRARY_PATH}"
             },
             "classPaths": [
-                "build/classes",
-                "lib/*.jar"
+                "${workspaceFolder}/build/classes",
+                "${workspaceFolder}/lib/com.google.ortools.linearsolver.jar",
+                "${workspaceFolder}/lib/commons-cli-1.2.jar",
+                "${workspaceFolder}/lib/commons-collections-3.2.1.jar",
+                "${workspaceFolder}/lib/commons-configuration-1.7.jar",
+                "${workspaceFolder}/lib/commons-io-2.1.jar",
+                "${workspaceFolder}/lib/commons-lang-2.6.jar",
+                "${workspaceFolder}/lib/commons-logging-1.1.1.jar",
+                "${workspaceFolder}/lib/cplex.jar",
+                "${workspaceFolder}/lib/fastutil-6.4.1.jar",
+                "${workspaceFolder}/lib/gurobi.jar",
+                "${workspaceFolder}/lib/log4j-1.2.16.jar",
+                "${workspaceFolder}/lib/lpsolve55j.jar"
             ],
             "modulePaths": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build JAR"
         }
     ]
 }

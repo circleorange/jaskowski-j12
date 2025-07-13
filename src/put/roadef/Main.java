@@ -15,22 +15,21 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.varia.LevelRangeFilter;
 
 import put.roadef.conf.RoadefConfiguration;
-import put.roadef.neighborhoods.AllProcessesNeighborhood;
 import put.roadef.tweaks.HillClimber;
 
-public class Main {
-
-	static final int SAFETY_SECONDS = 1;
-	static int timeLimitSeconds = 300;
-	static String inputFileName = "";
+public class Main 
+{
+	static final int SAFETY_SECONDS        = 1;
+	static int timeLimitSeconds            = 300;
+	static String inputFileName            = "";
 	static String originalSolutionFilename = "";
-	static String outputSolutionFilename = "";
-	static String teamName = "J12";
-	static String logFileName = "";
-	static String confFileName = "machineReassignment.conf"; // Default configuration file name
-	static long seed = 0;
-	static Logger logger = Logger.getLogger(Main.class);
-	static boolean logConsole = false;
+	static String outputSolutionFilename   = "";
+	static String teamName                 = "J12";
+	static String logFileName              = "";
+	static String confFileName             = "machineReassignment.conf"; // Default configuration file name
+	static long seed                       = 0;
+	static Logger logger                   = Logger.getLogger(Main.class);
+	static boolean logConsole              = false;
 
 	private final static NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
@@ -39,8 +38,10 @@ public class Main {
 	 */
 	static Solver solver = new HillClimber();
 
-	public static void main(String[] args) throws IOException {
-		if (args[0].equals("-h")) {
+	public static void main(String[] args) throws IOException 
+	{
+		if (args[0].equals("-h")) 
+		{
 			usage();
 			System.exit(0);
 		}
@@ -58,18 +59,25 @@ public class Main {
 		final Deadline deadline = new Deadline(timeLimitSeconds * 1000 - SAFETY_SECONDS);
 
 		if (logFileName != "")
-			try {
+		{
+			try 
+			{
 				rootLogger.addAppender(new FileAppender(new PatternLayout(Common.LogPattern), logFileName, false));
-			} catch (IOException e1) {
+			} 
+			catch (IOException e1) 
+			{
 				e1.printStackTrace();
 			}
-
+		}
 		RoadefConfiguration configuration = null;
-		try {
+		try 
+		{
 			logger.info("Using " + confFileName);
 			configuration = new RoadefConfiguration(confFileName); //TODO: new File(confFileName)
 			solver = (Solver) configuration.getInstanceAndSetup("solver");
-		} catch (ConfigurationException e) {
+		} 
+		catch (ConfigurationException e) 
+		{
 			e.printStackTrace(System.err);
 			logger.fatal("Something extreamly bad has happend. That is your fault!", e);
 		}
@@ -95,90 +103,135 @@ public class Main {
 		logger.info("Finished");
 	}
 
-	static void parseCmd(String[] args) {
+	static void parseCmd(String[] args) 
+	{
 		//TODO: make it move beautiful
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-t")) {
-				if (i == args.length - 1) {
+		for (int i = 0; i < args.length; i++) 
+		{
+			if (args[i].equals("-t")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Invalid time limit");
 					System.exit(0);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					timeLimitSeconds = Math.max(Integer.parseInt(args[i]) - SAFETY_SECONDS, 0);
 				}
-			} else if (args[i].equals("-p")) {
-				if (i == args.length - 1) {
+			} else if (args[i].equals("-p")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Invalid instance_filename");
 					System.exit(0);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					inputFileName = args[i];
 				}
-			} else if (args[i].equals("-i")) {
-				if (i == args.length - 1) {
+			} 
+			else if (args[i].equals("-i")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Invalid original_solution_filename");
 					System.exit(0);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					originalSolutionFilename = args[i];
 				}
-			} else if (args[i].equals("-o")) {
-				if (i == args.length - 1) {
+			} 
+			else if (args[i].equals("-o")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Invalid output_solution_filename");
 					System.exit(0);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					outputSolutionFilename = args[i];
 				}
-			} else if (args[i].equals("-s")) {
-				if (i == args.length - 1) {
+			} 
+			else if (args[i].equals("-s")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Invalid seed");
 					System.exit(0);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					seed = Integer.parseInt(args[i]);
 				}
-			} else if (args[i].equals("-name")) {
+			} 
+			else if (args[i].equals("-name")) 
+			{
 				System.out.println(teamName);
 				if (args.length == 1)
 					System.exit(0);
-			} else if (args[i].equals("-conf")) { // This is an convenient extension over ROADEF program specification 
-				if (i == args.length - 1) {
+			}
+			// This is an convenient extension over ROADEF program specification  
+			else if (args[i].equals("-conf")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("Configuration file not given");
 					System.exit(-1);
-				} else {
+				} else 
+				{
 					i++;
 					confFileName = args[i];
 				}
-			} else if (args[i].equals("-log")) {
-				if (i == args.length - 1) {
+			} 
+			else if (args[i].equals("-log")) 
+			{
+				if (i == args.length - 1) 
+				{
 					System.err.println("No log filename provided");
 					System.exit(-1);
-				} else {
+				} 
+				else 
+				{
 					i++;
 					logFileName = args[i];
 				}
-			} else if (args[i].equals("-logConsole")) {
+			} 
+			else if (args[i].equals("-logConsole")) 
+			{
 				logConsole = true;
-			} else {
+			} 
+			else 
+			{
 				System.err.println("Invalid argument " + args[i]);
 			}
 		}
-		if (inputFileName == "") {
+		if (inputFileName == "") 
+		{
 			System.err.println("Invalid instance_filename");
 			System.exit(0);
 		}
-		if (originalSolutionFilename == "") {
+		if (originalSolutionFilename == "") 
+		{
 			System.err.println("Invalid original_solution_filename");
 			System.exit(0);
 		}
-		if (outputSolutionFilename == "") {
+		if (outputSolutionFilename == "") 
+		{
 			System.err.println("Invalid output_solution_filename");
 			System.exit(0);
 		}
 	}
 
-	private static void usage() {
+	private static void usage() 
+	{
 		System.out
 				.println("executable -t time_limit -p instance_filename -i original_solution_filename -o new_solution_filename -name -s seed [-conf filename.conf] [-log filename.log] -[logConsole]");
 	}

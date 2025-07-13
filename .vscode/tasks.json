@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Roadef JAR",
+            "label": "Build JAR",
             "type": "shell",
             "command": "ant jar",
             "group": {
@@ -16,6 +16,63 @@
                 "panel": "shared"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Compile Only",
+            "type": "shell",
+            "command": "ant compile",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Compile Java sources without creating JAR"
+        },
+        {
+            "label": "Run Application",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux",
+                "-jar", "build/jar/roadef.jar",
+                "-conf", "conf/hc_lnshc.conf",
+                "-p", "data/A/model_a1_2.txt",
+                "-i", "data/A/assignment_a1_2.txt",
+                "-o", "new_assignment_a1_2.txt",
+                "-t", "10"
+            ],
+            "options": {
+                "env": {
+                    "LD_LIBRARY_PATH": "/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux:${env:LD_LIBRARY_PATH}"
+                }
+            },
+            "group": "test",
+            "dependsOn": "Build JAR",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Run the roadef application with default parameters"
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "ant clean",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "detail": "Clean the build directory"
         }
     ]
 }
