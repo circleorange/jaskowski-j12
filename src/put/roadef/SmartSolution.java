@@ -3,6 +3,9 @@ package put.roadef;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -26,6 +29,11 @@ import put.roadef.Problem.Service;
 // put.roadef.SmartSolution.updateSpreadConstraints(int, int, int)	4.9231	38.1 ms (4,9%)	1116609
 // put.roadef.Problem.checkTransientUsageConstraint(put.roadef.ImmutableSolution, int)	2.0211082	15.6 ms (2%)	2233592
 public class SmartSolution extends AbstractSolution {
+	// Static tracking fields
+	private static PrintWriter reassignmentTracker = null;
+	private static long moveCounter = 0;
+	private static final Object trackingLock = new Object();
+	
 	private long machineMoveCostNotWeighted;
 	private long processMoveCostNotWeighted;
 	private final int numProcessesMovedInService[];
@@ -357,6 +365,9 @@ public class SmartSolution extends AbstractSolution {
 		if (sourceMachine == destinationMachine)
 			return;
 
+		// TRACKING: Log process reassignment details
+		trackProcessReassignment(processId, sourceMachine, destinationMachine);
+
 		assignment[processId] = destinationMachine;
 
 		int originalMachine = problem.getOriginalSolution().getMachine(processId);
@@ -540,7 +551,8 @@ public class SmartSolution extends AbstractSolution {
 		int s = problem.getProcess(processId).service;
 		assert machinesInService[s].get(sourceMachineId) > 0;
 
-		if (machinesInService[s].add(sourceMachineId, -1) == 2) // It was 2 (bad), it is 1 (good)				
+		if (machinesInService[s].add(sourceMachineId, -1) == 2 // It was 2 (bad), it is 1 (good)				
+			)
 			numProcessesForWhichServiceConflictsAreSatisfied += 1;
 
 		if (machinesInService[s].add(destinationMachineId, +1) == 1) // It was 1 (good), it two (bad)			
@@ -826,7 +838,7 @@ public class SmartSolution extends AbstractSolution {
 			long bp = problem.computeBalanceValue(b.target, r1, r2);
 
 			optimisticProfit += Math.max(bm, 0) - Math.max(bm - bp, 0) + Math.max(-bp, 0) * b.weight; // may be negative
-			// Dwa pierwsze skoadniki dotyczo aktualnej maszyny (m) i so dokoadne. Ostatni skoadnik dotyczy maszyny docelowej i jest optymistyczny. 
+			// Dwa pierwsze skoadniki dotyczo aktualnej maszyny (m) i so dokaldne. Ostatni skoadnik dotyczy maszyny docelowej i jest optymistyczny. 
 			// Gdyby trzymao wszystkie aktualne balancy maszyn i kolejko priorytetowo, moona by zacieonio ten optymistyczny balance (TODO)
 		}
 		return optimisticProfit; // May be negative
@@ -858,6 +870,73 @@ public class SmartSolution extends AbstractSolution {
 	@Override
 	public ImmutableSolution lightClone() {
 		return new LightSolution(this);
+	}
+
+	// Process reassignment tracking methods
+	private static void initializeTracker(String filename) {
+		synchronized (trackingLock) {
+			if (reassignmentTracker == null) {
+				try {
+					reassignmentTracker = new PrintWriter(new FileWriter(filename, false));
+					// Write CSV header
+					reassignmentTracker.println("MoveNum,ProcessID,SourceMachine,DestMachine,OriginalMachine," +
+							"Service,MoveCost,Requirements,Improvement,Timestamp");
+					reassignmentTracker.flush();
+				} catch (IOException e) {
+					System.err.println("Error creating reassignment tracker: " + e.getMessage());
+				}
+			}
+		}
+	}
+	
+	private void trackProcessReassignment(int processId, int sourceMachine, int destinationMachine) {
+		// Initialize tracker on first call
+		if (reassignmentTracker == null) {
+			initializeTracker("process_reassignments.csv");
+		}
+		
+		synchronized (trackingLock) {
+			if (reassignmentTracker != null) {
+				Process process = problem.getProcess(processId);
+				int originalMachine = problem.getOriginalSolution().getMachine(processId);
+				
+				// Calculate improvement (cost before - cost after this move)
+				double improvement = getImprovement();
+				
+				// Build requirements string
+				StringBuilder reqBuilder = new StringBuilder();
+				reqBuilder.append("[");
+				for (int i = 0; i < process.requirements.length; i++) {
+					if (i > 0) reqBuilder.append(",");
+					reqBuilder.append(process.requirements[i]);
+				}
+				reqBuilder.append("]");
+				
+				// Write tracking data
+				reassignmentTracker.printf("%d,%d,%d,%d,%d,%d,%d,\"%s\",%.4f,%d%n",
+					++moveCounter,
+					processId,
+					sourceMachine,
+					destinationMachine,
+					originalMachine,
+					process.service,
+					process.moveCost,
+					reqBuilder.toString(),
+					improvement,
+					System.currentTimeMillis()
+				);
+				reassignmentTracker.flush();
+			}
+		}
+	}
+	
+	public static void closeTracker() {
+		synchronized (trackingLock) {
+			if (reassignmentTracker != null) {
+				reassignmentTracker.close();
+				reassignmentTracker = null;
+			}
+		}
 	}
 
 	public static SmartSolution promoteToSmartSolution(Solution solution) {

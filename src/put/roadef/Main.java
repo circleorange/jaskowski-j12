@@ -73,7 +73,7 @@ public class Main
 		try 
 		{
 			logger.info("Using " + confFileName);
-			configuration = new RoadefConfiguration(confFileName); //TODO: new File(confFileName)
+			configuration = new RoadefConfiguration(confFileName);
 			solver = (Solver) configuration.getInstanceAndSetup("solver");
 		} 
 		catch (ConfigurationException e) 
@@ -90,6 +90,9 @@ public class Main
 		
 		RuntimeStats.add(problem.getOriginalSolution(), 0, problem.getClass().getSimpleName());
 		
+		// Add shutdown hook to close the reassignment tracker
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> SmartSolution.closeTracker()));
+		
 		logger.info("Starting solver");
 		Solution outputSolution = solver.solve(problem, deadline);
 
@@ -100,12 +103,15 @@ public class Main
 		
 		logger.info("Writing the solution");
 		SolutionIO.writeSolutionToFile(outputSolution, new File(outputSolutionFilename));
+		
+		// Close the reassignment tracker
+		SmartSolution.closeTracker();
+		
 		logger.info("Finished");
 	}
 
 	static void parseCmd(String[] args) 
 	{
-		//TODO: make it move beautiful
 		for (int i = 0; i < args.length; i++) 
 		{
 			if (args[i].equals("-t")) 

@@ -21,28 +21,31 @@ public class Problem {
 	public Logger logger = Logger.getLogger(put.roadef.Problem.class);
 	private static final int MAX_NUM_THREADS = 2;
 
-	public static final int MAX_MACHINES = 5000;
-	public static final int MAX_RESOURCES = 20;
-	public static final int MAX_PROCESSES = 50000;
-	public static final int MAX_SERVICES = 50000;
+	public static final int MAX_MACHINES      = 5000;
+	public static final int MAX_RESOURCES     = 20;
+	public static final int MAX_PROCESSES     = 50000;
+	public static final int MAX_SERVICES      = 50000;
 	public static final int MAX_NEIGHBORHOODS = 1000;
-	public static final int MAX_DEPENDENCIES = 5000;
-	public static final int MAX_LOCATIONS = 1000;
+	public static final int MAX_DEPENDENCIES  = 5000;
+	public static final int MAX_LOCATIONS     = 1000;
 	public static final int MAX_BALANCE_COSTS = 10;
 
-	public static final class Resource {
+	public static final class Resource 
+	{
 		public final boolean isTransient;
 		public final long loadCostWeight; //uint32		
 		public long maxProcessRequirement;
 		public long minProcessRequirement;
 
-		public Resource(boolean isTransient, long loadCostWeight) {
+		public Resource(boolean isTransient, long loadCostWeight) 
+		{
 			this.isTransient = isTransient;
 			this.loadCostWeight = loadCostWeight;
 		}
 	}
 
-	public static final class Machine {
+	public static final class Machine 
+	{
 		public final int id;
 		public final int location; // range: <0,1000) (locations limit)
 		public final int neighborhood; //range: <0,1000) (neighborhoods limit)
@@ -51,24 +54,40 @@ public class Problem {
 		public final long[] moveCosts; // [machines.length] uint32
 		public final long minMoveCost; //uint32
 
-		public Machine(int id, int location, int neighborhood, long[] capacities, long[] safetyCapacities, long[] moveCosts,
-				long minMoveCost) {
-			this.id = id;
-			this.location = location;
-			this.neighborhood = neighborhood;
-			this.capacities = capacities;
+		public Machine(
+			int id, 
+			int location, 
+			int neighborhood, 
+			long[] capacities, 
+			long[] safetyCapacities, 
+			long[] moveCosts,	
+			long minMoveCost
+		) {
+			this.id               = id;
+			this.location         = location;
+			this.neighborhood     = neighborhood;
+			this.capacities       = capacities;
 			this.safetyCapacities = safetyCapacities;
-			this.moveCosts = moveCosts;
-			this.minMoveCost = minMoveCost;
+			this.moveCosts        = moveCosts;
+			this.minMoveCost      = minMoveCost;
 		}
 
-		public Machine cloneToLocationAndNeighborhood(int location, int neighborhood) {
-			return new Machine(this.id, location, neighborhood, this.capacities, this.safetyCapacities, this.moveCosts,
-					this.minMoveCost);
+		public Machine cloneToLocationAndNeighborhood(int location, int neighborhood) 
+		{
+			return new Machine(
+				this.id, 
+				location, 
+				neighborhood, 
+				this.capacities, 
+				this.safetyCapacities, 
+				this.moveCosts,	
+				this.minMoveCost
+			);
 		}
 	}
 
-	public static final class Service {
+	public static final class Service 
+	{
 		public int spread; // range: <0,1000) (locations limit)
 		public int numDependencies; // range: <0,5000) (services limit)
 
@@ -99,13 +118,19 @@ public class Problem {
 	 * @author marcin
 	 * 
 	 */
-	public static final class Process implements Comparable<Process> {
+	public static final class Process implements Comparable<Process> 
+	{
 		public final int id;
 		public final int service; // range: <0,5000) (services limit)
 		public final long[] requirements; // uint32
 		public final long moveCost; // uint32
 
-		private Process(int id, int service, long[] requirements, long moveCost) {
+		private Process(
+			int id, 
+			int service, 
+			long[] requirements, 
+			long moveCost
+		) {
 			this.id = id;
 			this.service = service;
 			this.requirements = requirements;
@@ -113,39 +138,48 @@ public class Problem {
 		}
 
 		@Override
-		public int compareTo(Process process) {
-			if (moveCost != process.moveCost) {
+		public int compareTo(Process process) 
+		{
+			if (moveCost != process.moveCost) 
+			{
 				return (int) (moveCost - process.moveCost);
-			} else {
+			} 
+			else 
+			{
 				return id - process.id;
 			}
 		}
 	}
 
-	static public class Balance {
+	static public class Balance 
+	{
 		public int r1; // max: 20 (resources limit)
 		public int r2; // max: 20 (resources limit)
 		public long target; // uint32
 		public long weight; // uint32
 	}
 
-	static public final class Dependency {
+	static public final class Dependency 
+	{
 		public final int serviceA;
 		public final int serviceB;
 		public final int id;
 
-		public Dependency(int id, int serviceA, int serviceB) {
+		public Dependency(int id, int serviceA, int serviceB) 
+		{
 			this.id = id;
 			this.serviceA = serviceA;
 			this.serviceB = serviceB;
 		}
 	}
 
-	static public class Location {
+	static public class Location 
+	{
 		public int[] machines;
 	}
 
-	private static class Neighborhood {
+	private static class Neighborhood 
+	{
 		int[] machines;
 	}
 
@@ -186,7 +220,8 @@ public class Problem {
 	 * @return Number of the first transient resource in the resources array
 	 *         [firstTransient...length)
 	 */
-	public int getFirstTransientResource() {
+	public int getFirstTransientResource() 
+	{
 		return firstTransient;
 	}
 
@@ -194,55 +229,68 @@ public class Problem {
 	 * @return Number of standard resources in the resources array
 	 *         [0...standardCount-)
 	 */
-	public int getNumStandardResources() {
+	public int getNumStandardResources() 
+	{
 		return standardCount;
 	}
 
-	public String getName() {
+	public String getName() 
+	{
 		return name;
 	}
 
-	public int getNumDependencies() {
+	public int getNumDependencies() 
+	{
 		return dependencies.size();
 	}
 
-	public Dependency getDependency(int d) {
+	public Dependency getDependency(int d) 
+	{
 		return dependencies.get(d);
 	}
 
-	public int getNumResources() {
+	public int getNumResources() 
+	{
 		return resources.length;
 	}
 
-	public Location getLocation(int location) {
+	public Location getLocation(int location) 
+	{
 		return locations[location];
 	}
 
-	public Resource getResource(int resource) {
+	public Resource getResource(int resource) 
+	{
 		return resources[resource];
 	}
 
-	public int getNumMachines() {
+	public int getNumMachines() 
+	{
 		return machines.length;
 	}
 
-	public Machine getMachine(int machine) {
+	public Machine getMachine(int machine) 
+	{
 		return machines[machine];
 	}
 
-	public int getNumServices() {
+	public int getNumServices() 
+	{
 		return services.length;
 	}
 
-	public Service getService(int service) {
+	public Service getService(int service) 
+	{
 		return services[service];
 	}
 
-	public int[] getProcessesOfService(int service) {
+	public int[] getProcessesOfService(int service) 
+	{
 		return services[service].processes;
 	}
 
-	public int getNumProcesses() {
+	public int getNumProcesses() 
+	{
 		return processes.length;
 	}
 

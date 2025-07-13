@@ -58,7 +58,7 @@
                 "panel": "shared"
             },
             "problemMatcher": [],
-            "detail": "Run the roadef application with default parameters"
+            "detail": "Run application with default parameters"
         },
         {
             "label": "Clean Build",
@@ -72,7 +72,7 @@
                 "panel": "shared"
             },
             "problemMatcher": [],
-            "detail": "Clean the build directory"
+            "detail": "Clean build directory"
         }
     ]
 }
