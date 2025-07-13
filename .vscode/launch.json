@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run Solution",
+            "request": "launch",
+            "mainClass": "put.roadef.Main",
+            "args": [
+                "-conf", "conf/hc_lnshc.conf",
+                "-p", "data/A/model_a1_2.txt",
+                "-i", "data/A/assignment_a1_2.txt",
+                "-o", "new_assignment_a1_2.txt",
+                "-t", "300"
+            ]
+        },
+    ]
+}

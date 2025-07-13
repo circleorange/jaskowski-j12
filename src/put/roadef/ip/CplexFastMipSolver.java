@@ -163,33 +163,36 @@ public class CplexFastMipSolver extends MipSolver {
 				}
 			}
 
-			cplex.setVectors(vals, null, vars, null, null, null);
-			cplex.setParam(IloCplex.IntParam.Threads, 1);
-			cplex.setParam(IloCplex.IntParam.ScaInd, scaleParameter);
+			// CPLEX v22.1.1 compatibility: replaced deprecated setVectors with addMIPStart
+			cplex.addMIPStart(vars, vals);
+			cplex.setParam(IloCplex.Param.Threads, 1);
+			// Note: ScaInd parameter may not be available in newer CPLEX versions
+			// cplex.setParam(IloCplex.Param.Preprocessing.ScaInd, scaleParameter);
 
-			if (barGrowth != null)
-				cplex.setParam(IloCplex.DoubleParam.BarGrowth, barGrowth);
-
-			if (barObjRng != null)
-				cplex.setParam(IloCplex.DoubleParam.BarObjRng, barObjRng);
+			// Note: BarGrowth and BarObjRng parameters may not be available in newer CPLEX versions
+			// if (barGrowth != null)
+			//	cplex.setParam(IloCplex.Param.Barrier.Growth, barGrowth);
+			// if (barObjRng != null)
+			//	cplex.setParam(IloCplex.Param.Barrier.ObjRange, barObjRng);
+			
 			if (cutUp != null)
-				cplex.setParam(IloCplex.DoubleParam.CutUp, cutUp);
+				cplex.setParam(IloCplex.Param.MIP.Tolerances.UpperCutoff, cutUp);
 			if (epaGap != null)
-				cplex.setParam(IloCplex.DoubleParam.EpAGap, epaGap);
+				cplex.setParam(IloCplex.Param.MIP.Tolerances.AbsMIPGap, epaGap);
 			if (epGap != null)
-				cplex.setParam(IloCplex.DoubleParam.EpGap, epGap);
+				cplex.setParam(IloCplex.Param.MIP.Tolerances.MIPGap, epGap);
 			if (mipEmphasis != null)
-				cplex.setParam(IloCplex.IntParam.MIPEmphasis, mipEmphasis);
+				cplex.setParam(IloCplex.Param.Emphasis.MIP, mipEmphasis);
 
 			status = 13;
 			//if we found any feasible solution then set this solution,
 			//however I found out that sometimes this solution isn't feasible...
 			
 			//set timelimits
-			cplex.setParam(IloCplex.DoubleParam.TiLim, deadline.getTimeToExpireMilliSeconds());
-			cplex.setParam(IloCplex.IntParam.NodeLim, 400);		// Number of nodes
+			cplex.setParam(IloCplex.Param.TimeLimit, deadline.getTimeToExpireMilliSeconds());
+			cplex.setParam(IloCplex.Param.MIP.Limits.Nodes, 400);		// Number of nodes
 			//cplex.setParam(IloCplex.DoubleParam.EpGap, 0.03);
-			cplex.setParam(IloCplex.DoubleParam.EpAGap, 100);
+			cplex.setParam(IloCplex.Param.MIP.Tolerances.AbsMIPGap, 100);
 			//cplex.setParam(IloCplex.IntParam.IntSolLim, 100);	// Number of Integer solutions
 			
 
