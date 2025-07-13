@@ -30,11 +30,7 @@ export CPLEX_STUDIO=/opt/ibm/ILOG/CPLEX_Studio2211
 export LD_LIBRARY_PATH=$CPLEX_STUDIO/cplex/bin/x86-64_linux:$LD_LIBRARY_PATH
 ```
 
-- Run the project (using an example configuration `hc_lnshc.conf`):
-```
-java -jar build/jar/roadef.jar -conf conf/hc_lnshc.conf -p data/A/model_a1_2.txt -i data/A/assignment_a1_2.txt -o new_assignment_a1_2.txt -t 300
-```
-Alternatively, use the VS Code launch files.
+- Run the project using the VS Code launch files.
 
 
 # CPLEX v12.5 to v22.1.1 Compatibility Changes
