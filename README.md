@@ -15,7 +15,7 @@ http://www.cs.put.poznan.pl/wjaskowski/projects/roadef-challenge-2012.
 
 # Build
 
-- To compile and build the build/roadef.jar file, run:
+- To compile and build the build/jar/roadef.jar file, run:
 ```
 ant jar
 ```
