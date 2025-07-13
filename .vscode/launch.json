@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -15,7 +12,19 @@
                 "-i", "data/A/assignment_a1_2.txt",
                 "-o", "new_assignment_a1_2.txt",
                 "-t", "300"
-            ]
-        },
+            ],
+            "vmArgs": [
+                "-Djava.library.path=/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux"
+            ],
+            "env": {
+                "LD_LIBRARY_PATH": "/opt/ibm/ILOG/CPLEX_Studio2211/cplex/bin/x86-64_linux:${env:LD_LIBRARY_PATH}"
+            },
+            "classPaths": [
+                "build/classes",
+                "lib/*.jar"
+            ],
+            "modulePaths": [],
+            "cwd": "${workspaceFolder}"
+        }
     ]
 }

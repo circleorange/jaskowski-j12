@@ -1,32 +1,47 @@
+# Overview
+
 This repository contains the solution submitted by team J12 for the EURO/ROADEF
-2012 Challange Machine Reassignment Problem proposed by Google 
-(http://challenge.roadef.org/2012/en/index.php) 
+2012 Challange Machine Reassignment Problem proposed by Google:<br>
+http://challenge.roadef.org/2012/en/index.php.
 
-For more informations about our solution see 
-http://www.cs.put.poznan.pl/wjaskowski/projects/roadef-challenge-2012
+For more informations about the solution see:<br>
+http://www.cs.put.poznan.pl/wjaskowski/projects/roadef-challenge-2012.
 
+# Dependencies
 
-Build
------
+- Java 8
+- Ant
+- IBM ILOG CPLEX Studio v22.1.1 (specifically for the MIP solver)
 
-$> ant jar
+# Build
 
+- To compile and build the build/roadef.jar file, run:
+```
+ant jar
+```
 
-Run
----
+Other `ant` commands include; `ant clean`, `ant compile`.
 
-Most configuration requires CPLEX Solver (version 12.5 was used). 
-Make sure that the system see the CPLEX binary libraries, e.g:
+# Run
 
-$> export LD_LIBRARY_PATH=/opt/ibm/ilog/cplex/bin/x86-64_sles10_4.1
+- As the project relies on CPLEX Solver v22.1.1, ensure it is accessible to the system:
+```
+export CPLEX_STUDIO=/opt/ibm/ILOG/CPLEX_Studio2211
+export LD_LIBRARY_PATH=$CPLEX_STUDIO/cplex/bin/x86-64_linux:$LD_LIBRARY_PATH
+```
 
-Run using configuration hc_lnshc.conf:
-
-$> java -jar build/jar/roadef.jar -conf conf/hc_lnshc.conf -p data/A/model_a1_2.txt -i data/A/assignment_a1_2.txt -o new_assignment_a1_2.txt -t 300
-
+- Run the project (using an example configuration `hc_lnshc.conf`):
+```
+java -jar build/jar/roadef.jar -conf conf/hc_lnshc.conf -p data/A/model_a1_2.txt -i data/A/assignment_a1_2.txt -o new_assignment_a1_2.txt -t 300
+```
+Alternatively, use the VS Code launch files.
 
 
 # CPLEX v12.5 to v22.1.1 Compatibility Changes
+
+The original solution used CPLEX Solver v12.5, however, official IBM website does not provide endpoints to download past releases - and only the latest, v22.1.1 is available (as of July 2025).
+
+Hence the project is updated to comply with the new CPLEX engine interfaces.
 
 ## Summary
 The ROADEF challenge solution has been successfully updated from CPLEX v12.5 (2012) to v22.1.1. The following compatibility issues were identified and resolved:
