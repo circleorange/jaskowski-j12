@@ -122,6 +122,9 @@ public class HillClimber extends Solver implements RandomizedTweakOperator, Heur
 	}
 
 	private Solution tweakSteepest(Solution solution, final Deadline deadline, Random random) {
+		// Track the initial solution state
+		SmartSolution.trackSolutionStateChange(solution, "HillClimber-Steepest-Initial");
+		
 		bestSolutionImproved = true;
 
 		NeighborProcessor processor = new NeighborProcessor() {
@@ -147,8 +150,12 @@ public class HillClimber extends Solver implements RandomizedTweakOperator, Heur
 				neighborhood.visit(solution, deadline, processor);
 			}
 
-			if (bestSolutionImproved)
+			if (bestSolutionImproved) 
+			{
 				solution = new SmartSolution(bestSolution);
+				// Track solution state change when moving to the best found solution
+				SmartSolution.trackSolutionStateChange(solution, "HillClimber-Steepest");
+			}
 		}
 
 		return solution;
@@ -163,6 +170,9 @@ public class HillClimber extends Solver implements RandomizedTweakOperator, Heur
 
 		stats.reset();
 
+		// Track the initial solution state
+		SmartSolution.trackSolutionStateChange(ss, "HillClimber-Initial");
+
 		bestSolutionImproved = true;
 		greedyBestSolutionLight = greedyBestSolution = ss;
 		bestSolutionCost = ss.getCost();
@@ -176,6 +186,9 @@ public class HillClimber extends Solver implements RandomizedTweakOperator, Heur
 					bestSolutionImproved = improved = true;
 					greedyBestSolutionLight = neighbor;
 					stats.numFeasibleAccepted += 1;
+					
+					// Track solution state change when an improved solution is accepted
+					SmartSolution.trackSolutionStateChange(neighbor, "HillClimber-Greedy");
 				} else {
 					stats.numFeasibleNotAccepted += 1;
 				}
@@ -279,10 +292,14 @@ public class HillClimber extends Solver implements RandomizedTweakOperator, Heur
 				if (hc.bestSolutionCost > neighbor.getCost()) {
 					hc.bestSolutionCost = neighbor.getCost();
 					equalSolutions.clear();
+					// Track solution state change for improved solution
+					SmartSolution.trackSolutionStateChange(neighbor, "HillClimber-Equal-Improved");
 				} else if (!acceptEqual || equalSolutions.contains(neighbor)) {
 					return Decision.Reject;
 				} else {
 					equalSolutions.add(neighbor.lightClone());
+					// Track solution state change for equal cost solution
+					SmartSolution.trackSolutionStateChange(neighbor, "HillClimber-Equal-Same");
 				}
 
 				hc.bestSolutionImproved = fresh = true;

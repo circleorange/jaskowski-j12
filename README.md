@@ -32,17 +32,17 @@ export LD_LIBRARY_PATH=$CPLEX_STUDIO/cplex/bin/x86-64_linux:$LD_LIBRARY_PATH
 
 - Run the project using the VS Code launch files.
 
+# Changes to original solution
 
-# CPLEX v12.5 to v22.1.1 Compatibility Changes
+## Additional logging of process reassignments and changes to the "current" soluton.
 
-The original solution used CPLEX Solver v12.5, however, official IBM website does not provide endpoints to download past releases - and only the latest, v22.1.1 is available (as of July 2025).
+- Implemented `initializeTracker()`, `trackProcessReassignment()`, and `closeTracker()` in the `SmartSolution` class to log any process reassignments.
 
-Hence the project is updated to comply with the new CPLEX engine interfaces.
+## CPLEX v12.5 to v22.1.1 Compatibility Changes.
 
-## Summary
-The ROADEF challenge solution has been successfully updated from CPLEX v12.5 (2012) to v22.1.1. The following compatibility issues were identified and resolved:
+The original solution used CPLEX Solver v12.5 (2012), however, official IBM website does not provide endpoints to download past releases - and only the latest, v22.1.1 is available (as of July 2025).
 
-## Changes Made
+Hence the project is updated to be compatible with the new CPLEX v22.1.1 engine interfaces.
 
 ### 1. Deprecated Method: setVectors()
 **Issue**: The `cplex.setVectors()` method has been deprecated in CPLEX v22.1.1.

@@ -32,7 +32,10 @@ public class SmartSolution extends AbstractSolution
 {
 	// Static tracking fields
 	private static PrintWriter reassignmentTracker = null;
+	private static PrintWriter solutionTracker = null;
 	private static long moveCounter = 0;
+	private static long solutionCounter = 0;
+	private static long currentSolutionId = 0;
 	private static final Object trackingLock = new Object();
 	
 	private long machineMoveCostNotWeighted;
@@ -898,16 +901,22 @@ public class SmartSolution extends AbstractSolution
 	}
 
 	// Process reassignment tracking methods
-	private static void initializeTracker(String filename) {
-		synchronized (trackingLock) {
-			if (reassignmentTracker == null) {
-				try {
+	private static void initializeTracker(String filename) 
+	{
+		synchronized (trackingLock) 
+		{
+			if (reassignmentTracker == null) 
+			{
+				try 
+				{
 					reassignmentTracker = new PrintWriter(new FileWriter(filename, false));
 					// Write CSV header
 					reassignmentTracker.println("MoveNum,ProcessID,SourceMachine,DestMachine,OriginalMachine," +
-							"Service,MoveCost,Requirements,Improvement,Timestamp");
+							"Service,MoveCost,Requirements,Improvement,Timestamp,SolutionId");
 					reassignmentTracker.flush();
-				} catch (IOException e) {
+				} 
+				catch (IOException e) 
+				{
 					System.err.println("Error creating reassignment tracker: " + e.getMessage());
 				}
 			}
@@ -916,31 +925,28 @@ public class SmartSolution extends AbstractSolution
 	
 	private void trackProcessReassignment(int processId, int sourceMachine, int destinationMachine) 
 	{
-		// Initialize tracker on first call
-		if (reassignmentTracker == null) 
+		if (reassignmentTracker == null) // Initialize tracker on first call
 		{
 			initializeTracker("process_reassignments.csv");
 		}
-		
 		synchronized (trackingLock) 
 		{
-			if (reassignmentTracker != null) 
+			if (reassignmentTracker == null) return; // Guard clause for uninitialized tracker
+			Process process = problem.getProcess(processId);
+			int originalMachine = problem.getOriginalSolution().getMachine(processId);
+			double improvement = getImprovement(); // Calculate improvement (cost before - cost after this move)
+			StringBuilder reqBuilder = new StringBuilder(); // Build requirements string
+			
+			reqBuilder.append("[");
+			for (int i = 0; i < process.requirements.length; i++) 
 			{
-				Process process = problem.getProcess(processId);
-				int originalMachine = problem.getOriginalSolution().getMachine(processId);
-				double improvement = getImprovement(); // Calculate improvement (cost before - cost after this move)
-				StringBuilder reqBuilder = new StringBuilder(); // Build requirements string
-				
-				reqBuilder.append("[");
-				for (int i = 0; i < process.requirements.length; i++) 
-				{
-					if (i > 0) reqBuilder.append(",");
-					reqBuilder.append(process.requirements[i]);
-				}
-				reqBuilder.append("]");
-				
-				// Write tracking data
-				reassignmentTracker.printf("%d,%d,%d,%d,%d,%d,%d,\"%s\",%.4f,%d%n",
+				if (i > 0) reqBuilder.append(",");
+				reqBuilder.append(process.requirements[i]);
+			}
+			reqBuilder.append("]");
+			
+			// Write tracking data
+			reassignmentTracker.printf("%d,%d,%d,%d,%d,%d,%d,\"%s\",%.4f,%d,%d%n",
 					++moveCounter,
 					processId,
 					sourceMachine,
@@ -950,10 +956,10 @@ public class SmartSolution extends AbstractSolution
 					process.moveCost,
 					reqBuilder.toString(),
 					improvement,
-					System.currentTimeMillis()
+					System.currentTimeMillis(),
+					currentSolutionId
 				);
-				reassignmentTracker.flush();
-			}
+			reassignmentTracker.flush();
 		}
 	}
 	
@@ -966,13 +972,73 @@ public class SmartSolution extends AbstractSolution
 				reassignmentTracker.close();
 				reassignmentTracker = null;
 			}
+			if (solutionTracker != null) 
+			{
+				solutionTracker.close();
+				solutionTracker = null;
+			}
 		}
 	}
 
+	private static void initializeSolutionTracker(String filename) 
+	{
+		synchronized (trackingLock) 
+		{
+			if (solutionTracker == null) 
+			{
+				try 
+				{
+					solutionTracker = new PrintWriter(new FileWriter(filename, false));
+					// Write CSV header
+					solutionTracker.println("SolutionId,Cost,Improvement,Timestamp,SolverMethod,NumReassignments");
+					solutionTracker.flush();
+				} 
+				catch (IOException e) 
+				{
+					System.err.println("Error creating solution tracker: " + e.getMessage());
+				}
+			}
+		}
+	}
+	
 	public static SmartSolution promoteToSmartSolution(Solution solution) {
 		if (solution instanceof SmartSolution)
 			return (SmartSolution)solution;
 		else
 			return new SmartSolution(solution);		
+	}
+	
+	public static void trackSolutionStateChange(ImmutableSolution solution, String solverMethod) 
+	{
+		// Initialize solution tracker on first call
+		if (solutionTracker == null) 
+		{
+			initializeSolutionTracker("solution_states.csv");
+		}
+		
+		synchronized (trackingLock) 
+		{
+			if (solutionTracker != null) 
+			{
+				currentSolutionId = ++solutionCounter;
+				long reassignmentsSinceLast = moveCounter; // Track total reassignments so far
+				
+				// Write solution state data
+				solutionTracker.printf("%d,%d,%.4f,%d,\"%s\",%d%n",
+					currentSolutionId,
+					solution.getCost(),
+					solution.getImprovement(),
+					System.currentTimeMillis(),
+					solverMethod,
+					reassignmentsSinceLast
+				);
+				solutionTracker.flush();
+			}
+		}
+	}
+	
+	public static long getCurrentSolutionId() 
+	{
+		return currentSolutionId;
 	}
 }

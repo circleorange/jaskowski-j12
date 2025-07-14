@@ -42,7 +42,7 @@
                 "-p", "data/A/model_a1_2.txt",
                 "-i", "data/A/assignment_a1_2.txt",
                 "-o", "new_assignment_a1_2.txt",
-                "-t", "300"
+                "-t", "30"
             ],
             "options": {
                 "env": {
