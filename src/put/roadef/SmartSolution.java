@@ -28,7 +28,8 @@ import put.roadef.Problem.Service;
 // put.roadef.SmartSolution.updateNeihborhoodConstraints(int, int, int)	9.088542	70.5 ms (9,1%)	1116609
 // put.roadef.SmartSolution.updateSpreadConstraints(int, int, int)	4.9231	38.1 ms (4,9%)	1116609
 // put.roadef.Problem.checkTransientUsageConstraint(put.roadef.ImmutableSolution, int)	2.0211082	15.6 ms (2%)	2233592
-public class SmartSolution extends AbstractSolution {
+public class SmartSolution extends AbstractSolution 
+{
 	// Static tracking fields
 	private static PrintWriter reassignmentTracker = null;
 	private static long moveCounter = 0;
@@ -65,7 +66,8 @@ public class SmartSolution extends AbstractSolution {
 
 	public static Logger logger = Logger.getLogger(SmartSolution.class);
 
-	public class Stats {
+	public class Stats 
+	{
 		public long numIsFeasible;
 		public long numCheckCapacityConstraintsFailed;
 		public long numCheckTransientUsageConstraintsFailed;
@@ -74,10 +76,10 @@ public class SmartSolution extends AbstractSolution {
 		public long numCheckServiceDependenciesConstraintsFailed;
 		public int numIsNotFeasible;
 
-		public Stats() {
-		}
+		public Stats() {}
 
-		public Stats(Stats stats) {
+		public Stats(Stats stats) 
+		{
 			numIsFeasible = stats.numIsFeasible;
 			numCheckCapacityConstraintsFailed = stats.numCheckCapacityConstraintsFailed;
 			numCheckTransientUsageConstraintsFailed = stats.numCheckTransientUsageConstraintsFailed;
@@ -87,7 +89,8 @@ public class SmartSolution extends AbstractSolution {
 			numIsNotFeasible = stats.numIsNotFeasible;
 		}
 
-		public void reset() {
+		public void reset() 
+		{
 			numIsFeasible = 0;
 			numIsNotFeasible = 0;
 			numCheckCapacityConstraintsFailed = 0;
@@ -99,7 +102,8 @@ public class SmartSolution extends AbstractSolution {
 
 		private final NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
-		public void log(Logger logger, Level level) {
+		public void log(Logger logger, Level level) 
+		{
 			logger.log(level, "numIsFeasible = " + nf.format(numIsFeasible));
 			logger.log(level, "numIsNotFeasible = " + nf.format(numIsNotFeasible));
 			logger.log(level, "numCheckCapacityConstraintsFailed = " + nf.format(numCheckCapacityConstraintsFailed));
@@ -114,18 +118,21 @@ public class SmartSolution extends AbstractSolution {
 
 	public Stats stats = new Stats();
 
-	public SmartSolution(ImmutableSolution solution) {
+	public SmartSolution(ImmutableSolution solution) 
+	{
 		super(solution);
 		logger.trace("SmartSolution(ImmutableSolution solution)");
 		machineMoveCostNotWeighted = problem.computeMachineMoveCostNotWeighted(this);
 		processMoveCostNotWeighted = problem.computeProcessMoveCost(this);
 
 		numProcessesMovedInService = new int[problem.getNumServices()];
-		for (int s = 0; s < problem.getNumServices(); ++s) {
+		for (int s = 0; s < problem.getNumServices(); ++s) 
+		{
 			numProcessesMovedInService[s] = problem.computeNumMovedProcessesOfService(s, solution);
 		}
 		numServicesHavingCertainNumberOfMovedProcesses = new int[problem.getMaxNumProcessesInService() + 1];
-		for (int s = 0; s < problem.getNumServices(); ++s) {
+		for (int s = 0; s < problem.getNumServices(); ++s) 
+		{
 			numServicesHavingCertainNumberOfMovedProcesses[numProcessesMovedInService[s]] += 1;
 			if (maxNumberOfMovedProcesses < numProcessesMovedInService[s])
 				maxNumberOfMovedProcesses = numProcessesMovedInService[s];
@@ -138,9 +145,11 @@ public class SmartSolution extends AbstractSolution {
 		//
 		balanceCost = 0;
 		balanceCostsForMachines = new long[problem.getNumMachines()][];
-		for (int m = 0; m < problem.getNumMachines(); m++) {
+		for (int m = 0; m < problem.getNumMachines(); m++) 
+		{
 			balanceCostsForMachines[m] = new long[problem.getNumBalances()];
-			for (int b = 0; b < problem.getNumBalances(); ++b) {
+			for (int b = 0; b < problem.getNumBalances(); ++b) 
+			{
 				balanceCostsForMachines[m][b] = problem.computeBalanceCost(this, problem.getBalance(b), problem.getMachine(m));
 				balanceCost += balanceCostsForMachines[m][b];
 			}
@@ -148,7 +157,8 @@ public class SmartSolution extends AbstractSolution {
 
 		//
 		isCapacityConstraintSatisfied = new boolean[problem.getNumMachines()];
-		for (int m = 0; m < problem.getNumMachines(); ++m) {
+		for (int m = 0; m < problem.getNumMachines(); ++m) 
+		{
 			isCapacityConstraintSatisfied[m] = problem.checkCapacityConstraint(this, m);
 			if (isCapacityConstraintSatisfied[m])
 				numCapacityConstraintsSatisfied += 1;
@@ -156,7 +166,8 @@ public class SmartSolution extends AbstractSolution {
 
 		//
 		isTransientUsageConstraintSatisfied = new boolean[problem.getNumMachines()];
-		for (int m = 0; m < problem.getNumMachines(); ++m) {
+		for (int m = 0; m < problem.getNumMachines(); ++m) 
+		{
 			isTransientUsageConstraintSatisfied[m] = problem.checkTransientUsageConstraint(this, m);
 			if (isTransientUsageConstraintSatisfied[m])
 				numTransientUsageConstraintsSatisfied += 1;
@@ -167,7 +178,8 @@ public class SmartSolution extends AbstractSolution {
 		machinesInService = new Int2IntOpenHashMap[problem.getNumServices()];
 		for (int s = 0; s < problem.getNumServices(); ++s)
 			machinesInService[s] = new Int2IntOpenHashMap();
-		for (int p = 0; p < problem.getNumProcesses(); ++p) {
+		for (int p = 0; p < problem.getNumProcesses(); ++p) 
+		{
 			int m = assignment[p];
 			int s = problem.getProcess(p).service;
 			if (machinesInService[s].add(m, +1) == 0)
@@ -180,14 +192,16 @@ public class SmartSolution extends AbstractSolution {
 		locationsInService = new Int2IntOpenHashMap[problem.getNumServices()];
 		for (int s = 0; s < problem.getNumServices(); ++s)
 			locationsInService[s] = new Int2IntOpenHashMap();
-		for (int p = 0; p < problem.getNumProcesses(); ++p) {
+		for (int p = 0; p < problem.getNumProcesses(); ++p) 
+		{
 			int m = assignment[p];
 			int s = problem.getProcess(p).service;
 			int l = problem.getMachine(m).location;
 			if (locationsInService[s].add(l, +1) == 0)
 				numDistinctLocationsInService[s] += 1;
 		}
-		for (int s = 0; s < problem.getNumServices(); ++s) {
+		for (int s = 0; s < problem.getNumServices(); ++s) 
+		{
 			assert numDistinctLocationsInService[s] > 0;
 			if (numDistinctLocationsInService[s] >= problem.getService(s).spread)
 				numServicesForWithSpreadConstratinsSatisfied += 1;
@@ -197,7 +211,8 @@ public class SmartSolution extends AbstractSolution {
 		neighborhoodsInService = new Int2IntOpenHashMap[problem.getNumServices()];
 		for (int s = 0; s < problem.getNumServices(); ++s)
 			neighborhoodsInService[s] = new Int2IntOpenHashMap();
-		for (int p = 0; p < problem.getNumProcesses(); ++p) {
+		for (int p = 0; p < problem.getNumProcesses(); ++p) 
+		{
 			int m = assignment[p];
 			int s = problem.getProcess(p).service;
 			int n = problem.getMachine(m).neighborhood;
@@ -205,7 +220,8 @@ public class SmartSolution extends AbstractSolution {
 		}
 
 		numNeighborhoodsNotSatisifedForDependency = new int[problem.getNumDependencies()];
-		for (int d = 0; d < problem.getNumDependencies(); ++d) {
+		for (int d = 0; d < problem.getNumDependencies(); ++d) 
+		{
 			int sa = problem.getDependency(d).serviceA;
 			int sb = problem.getDependency(d).serviceB;
 			for (int n : neighborhoodsInService[sa].keySet()) {
@@ -228,7 +244,8 @@ public class SmartSolution extends AbstractSolution {
 		hashCode = calculateHashCode();
 	}
 
-	private SmartSolution(SmartSolution solution) {
+	private SmartSolution(SmartSolution solution) 
+	{
 		super(solution);
 		logger.trace("SmartSolution(SmartSolution solution)");
 
@@ -286,7 +303,8 @@ public class SmartSolution extends AbstractSolution {
 	}
 
 	//TODO: Bartek, napisz chociao co to robi? To jakas czesciowa kopia jest?
-	public void assign(SmartSolution solution) {
+	public void assign(SmartSolution solution) 
+	{
 		logger.error("To na pewno nie dziala, bu juz od tego czasu to klaso zmieniaoem. Ale nie to funkcje"); //WARNING!
 		problem = solution.problem;
 		assignment = solution.assignment;
@@ -302,13 +320,15 @@ public class SmartSolution extends AbstractSolution {
 		maxNumberOfMovedProcesses = solution.maxNumberOfMovedProcesses;
 		loadCost = solution.loadCost;
 		//resourceUsage = ss.resourceUsage;
-		for (int i = 0; i < resourceUsage.length; i++) {
+		for (int i = 0; i < resourceUsage.length; i++) 
+		{
 			for (int j = 0; j < resourceUsage[i].length; j++)
 				resourceUsage[i][j] = solution.resourceUsage[i][j];
 		}
 
 		//transientUsage = ss.transientUsage;
-		for (int i = 0; i < transientUsage.length; i++) {
+		for (int i = 0; i < transientUsage.length; i++) 
+		{
 			for (int j = 0; j < transientUsage[i].length; j++)
 				transientUsage[i][j] = solution.transientUsage[i][j];
 		}
@@ -342,11 +362,13 @@ public class SmartSolution extends AbstractSolution {
 	}
 
 	@Override
-	public Solution clone() {
+	public Solution clone() 
+	{
 		return new SmartSolution(this);
 	}
 
-	private int calculateHashCode() {
+	private int calculateHashCode() 
+	{
 		int hashCode = 0;
 		for (int i = 0; i < assignment.length; i++)
 			hashCode += 524287 * (i + 1) * assignment[i];
@@ -354,13 +376,15 @@ public class SmartSolution extends AbstractSolution {
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode() 
+	{
 		return hashCode;
 	}
 
 	@Override
 	//TODO: destinationMachine => destinationMachineId
-	public void moveProcess(int processId, int destinationMachine) {
+	public void moveProcess(int processId, int destinationMachine) 
+	{
 		int sourceMachine = getMachine(processId);
 		if (sourceMachine == destinationMachine)
 			return;
@@ -408,7 +432,8 @@ public class SmartSolution extends AbstractSolution {
 		isFeasible = isFeasibleInternal();
 	}
 
-	public boolean couldBeFeasibleQuick(int processId, int destinationMachine) {
+	public boolean couldBeFeasibleQuick(int processId, int destinationMachine) 
+	{
 		if (!couldBeFeasibleLoadCost(processId, destinationMachine))
 			return false;
 		// This works, but it does not help. Service contraints are too rare.
@@ -889,24 +914,26 @@ public class SmartSolution extends AbstractSolution {
 		}
 	}
 	
-	private void trackProcessReassignment(int processId, int sourceMachine, int destinationMachine) {
+	private void trackProcessReassignment(int processId, int sourceMachine, int destinationMachine) 
+	{
 		// Initialize tracker on first call
-		if (reassignmentTracker == null) {
+		if (reassignmentTracker == null) 
+		{
 			initializeTracker("process_reassignments.csv");
 		}
 		
-		synchronized (trackingLock) {
-			if (reassignmentTracker != null) {
+		synchronized (trackingLock) 
+		{
+			if (reassignmentTracker != null) 
+			{
 				Process process = problem.getProcess(processId);
 				int originalMachine = problem.getOriginalSolution().getMachine(processId);
+				double improvement = getImprovement(); // Calculate improvement (cost before - cost after this move)
+				StringBuilder reqBuilder = new StringBuilder(); // Build requirements string
 				
-				// Calculate improvement (cost before - cost after this move)
-				double improvement = getImprovement();
-				
-				// Build requirements string
-				StringBuilder reqBuilder = new StringBuilder();
 				reqBuilder.append("[");
-				for (int i = 0; i < process.requirements.length; i++) {
+				for (int i = 0; i < process.requirements.length; i++) 
+				{
 					if (i > 0) reqBuilder.append(",");
 					reqBuilder.append(process.requirements[i]);
 				}
@@ -930,9 +957,12 @@ public class SmartSolution extends AbstractSolution {
 		}
 	}
 	
-	public static void closeTracker() {
-		synchronized (trackingLock) {
-			if (reassignmentTracker != null) {
+	public static void closeTracker() 
+	{
+		synchronized (trackingLock) 
+		{
+			if (reassignmentTracker != null) 
+			{
 				reassignmentTracker.close();
 				reassignmentTracker = null;
 			}

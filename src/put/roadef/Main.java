@@ -19,19 +19,18 @@ import put.roadef.tweaks.HillClimber;
 
 public class Main 
 {
-	static final int SAFETY_SECONDS        = 1;
-	static int timeLimitSeconds            = 300;
-	static String inputFileName            = "";
-	static String originalSolutionFilename = "";
-	static String outputSolutionFilename   = "";
-	static String teamName                 = "J12";
-	static String logFileName              = "";
-	static String confFileName             = "machineReassignment.conf"; // Default configuration file name
-	static long seed                       = 0;
-	static Logger logger                   = Logger.getLogger(Main.class);
-	static boolean logConsole              = false;
-
-	private final static NumberFormat nf = NumberFormat.getInstance(Locale.US);
+	private final static NumberFormat nf    = NumberFormat.getInstance(Locale.US);
+	static  final int SAFETY_SECONDS        = 1;
+	static  int timeLimitSeconds            = 300;
+	static  String inputFileName            = "";
+	static  String originalSolutionFilename = "";
+	static  String outputSolutionFilename   = "";
+	static  String teamName                 = "J12";
+	static  String logFileName              = "";
+	static  String confFileName             = "machineReassignment.conf";           // Default configuration file name
+	static  long seed                       = 0;
+	static  Logger logger                   = Logger.getLogger(Main.class);
+	static  boolean logConsole              = false;
 
 	/**
 	 * Solver that should be used for computations
@@ -62,7 +61,13 @@ public class Main
 		{
 			try 
 			{
-				rootLogger.addAppender(new FileAppender(new PatternLayout(Common.LogPattern), logFileName, false));
+				rootLogger.addAppender(
+					new FileAppender(
+						new PatternLayout(Common.LogPattern), 
+						logFileName, 
+						false		
+					)
+				);
 			} 
 			catch (IOException e1) 
 			{
@@ -81,18 +86,31 @@ public class Main
 			e.printStackTrace(System.err);
 			logger.fatal("Something extreamly bad has happend. That is your fault!", e);
 		}
-		String problemId = new File(inputFileName).getName().replaceFirst("model_", "").replaceFirst(".txt", "");
-		RuntimeStats.init(new File(new File(outputSolutionFilename).getAbsoluteFile().getParentFile(), problemId + "_runtime_stats.csv"));
-		
+		String problemId = new File(inputFileName)
+				.getName()
+				.replaceFirst("model_", "")
+				.replaceFirst(".txt", "");
+		RuntimeStats.init(
+			new File(
+				new File(outputSolutionFilename).getAbsoluteFile().getParentFile(), 
+				problemId + "_runtime_stats.csv"
+			)
+		);
 		logger.info("Reading the problem");
-		Problem problem = new Problem(new File(inputFileName), new File(originalSolutionFilename));
+		Problem problem = new Problem(
+			new File(inputFileName), 
+			new File(originalSolutionFilename)
+		);
 		problem.setSeed(seed);
-		
-		RuntimeStats.add(problem.getOriginalSolution(), 0, problem.getClass().getSimpleName());
-		
-		// Add shutdown hook to close the reassignment tracker
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> SmartSolution.closeTracker()));
-		
+		RuntimeStats.add(
+			problem.getOriginalSolution(), 
+			0, 
+			problem.getClass().getSimpleName()
+		);
+		Runtime
+			.getRuntime()
+			.addShutdownHook(new Thread(() -> SmartSolution.closeTracker())); // Add shutdown hook to close the reassignment tracker
+
 		logger.info("Starting solver");
 		Solution outputSolution = solver.solve(problem, deadline);
 
@@ -103,10 +121,8 @@ public class Main
 		
 		logger.info("Writing the solution");
 		SolutionIO.writeSolutionToFile(outputSolution, new File(outputSolutionFilename));
-		
-		// Close the reassignment tracker
-		SmartSolution.closeTracker();
-		
+	
+		SmartSolution.closeTracker(); // Close the reassignment tracker
 		logger.info("Finished");
 	}
 
@@ -126,7 +142,8 @@ public class Main
 					i++;
 					timeLimitSeconds = Math.max(Integer.parseInt(args[i]) - SAFETY_SECONDS, 0);
 				}
-			} else if (args[i].equals("-p")) 
+			} 
+			else if (args[i].equals("-p")) 
 			{
 				if (i == args.length - 1) 
 				{
