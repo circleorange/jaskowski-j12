@@ -909,10 +909,11 @@ public class SmartSolution extends AbstractSolution
 			{
 				try 
 				{
-					reassignmentTracker = new PrintWriter(new FileWriter(filename, false));
 					// Write CSV header
-					reassignmentTracker.println("MoveNum,ProcessID,SourceMachine,DestMachine,OriginalMachine," +
-							"Service,MoveCost,Requirements,Improvement,Timestamp,SolutionId");
+					reassignmentTracker = new PrintWriter(new FileWriter(filename, false));
+					reassignmentTracker.println(
+						"MoveNum,ProcessID,SourceMachine,DestMachine,OriginalMachine," +
+							"Service,MoveCost,ProcessResourceRequirements,Improvement,Timestamp,SolutionId");
 					reassignmentTracker.flush();
 				} 
 				catch (IOException e) 
@@ -929,6 +930,7 @@ public class SmartSolution extends AbstractSolution
 		{
 			initializeTracker("process_reassignments.csv");
 		}
+
 		synchronized (trackingLock) 
 		{
 			if (reassignmentTracker == null) return; // Guard clause for uninitialized tracker
@@ -957,8 +959,7 @@ public class SmartSolution extends AbstractSolution
 					reqBuilder.toString(),
 					improvement,
 					System.currentTimeMillis(),
-					currentSolutionId
-				);
+					currentSolutionId);
 			reassignmentTracker.flush();
 		}
 	}
@@ -989,7 +990,6 @@ public class SmartSolution extends AbstractSolution
 				try 
 				{
 					solutionTracker = new PrintWriter(new FileWriter(filename, false));
-					// Write CSV header
 					solutionTracker.println("SolutionId,Cost,Improvement,Timestamp,SolverMethod,NumReassignments");
 					solutionTracker.flush();
 				} 
